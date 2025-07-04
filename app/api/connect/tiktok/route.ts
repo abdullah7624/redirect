@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(
         {
           error: "Backend TikTok handler failed",
-          details: JSON.stringify(result),
+          details: result,
         },
         { status: backendResponse.status }
       );
@@ -50,9 +50,19 @@ export async function GET(req: NextRequest) {
         headers: { "Content-Type": "text/html" },
       }
     );
-  } catch (err) {
+  } catch (err: unknown) {
+    console.error("TikTok Proxy Error:", err);
+
+    const message =
+      err instanceof Error
+        ? { message: err.message, stack: err.stack }
+        : { raw: JSON.stringify(err) };
+
     return NextResponse.json(
-      { error: "Proxy failed", details: err || "Unknown error" },
+      {
+        error: "Proxy failed",
+        ...message,
+      },
       { status: 500 }
     );
   }
