@@ -1,20 +1,14 @@
-// File: pages/api/connect/tiktok.ts
+// File: app/api/connect/tiktok/route.ts
+import { NextRequest, NextResponse } from "next/server";
 
-import type { NextApiRequest, NextApiResponse } from "next";
-
-type TikTokProxyResponse = {
-  error?: string;
-  details?: string;
-};
-
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<TikTokProxyResponse | string>
-) {
-  const code = req.query.code as string | undefined;
+export async function GET(req: NextRequest) {
+  const code = req.nextUrl.searchParams.get("code");
 
   if (!code) {
-    return res.status(400).json({ error: "Missing TikTok authorization code" });
+    return NextResponse.json(
+      { error: "Missing TikTok authorization code" },
+      { status: 400 }
+    );
   }
 
   try {
@@ -27,23 +21,39 @@ export default async function handler(
       }
     );
 
-    await backendResponse.json();
+    const result = await backendResponse.json();
 
-    return res.status(200).send(`<!DOCTYPE html>
+    if (!backendResponse.ok) {
+      return NextResponse.json(
+        {
+          error: "Backend TikTok handler failed",
+          details: JSON.stringify(result),
+        },
+        { status: backendResponse.status }
+      );
+    }
+
+    return new NextResponse(
+      `<!DOCTYPE html>
 <html>
+  <head><title>Connected</title></head>
   <body>
     <script>
-      window.opener.postMessage({ success: true, provider: 'tiktok' }, '*');
+      window.opener?.postMessage({ success: true, provider: 'tiktok' }, '*');
       window.close();
     </script>
     <p>You're connected! You can close this window.</p>
   </body>
-</html>`);
+</html>`,
+      {
+        status: 200,
+        headers: { "Content-Type": "text/html" },
+      }
+    );
   } catch (err) {
-    console.error("TikTok Proxy Error:", err);
-    return res.status(500).json({
-      error: "Proxy failed",
-      details: JSON.stringify(err),
-    });
+    return NextResponse.json(
+      { error: "Proxy failed", details: err || "Unknown error" },
+      { status: 500 }
+    );
   }
 }
