@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
       }
     );
 
-    const result = await backendResponse.json();
+    const result = await backendResponse.text();
 
     if (!backendResponse.ok) {
       return NextResponse.json(
