@@ -27,7 +27,7 @@ export default async function handler(
       }
     );
 
-    const data = await backendResponse.json();
+    await backendResponse.json();
 
     return res.status(200).send(`<!DOCTYPE html>
 <html>
@@ -39,11 +39,11 @@ export default async function handler(
     <p>You're connected! You can close this window.</p>
   </body>
 </html>`);
-  } catch (err: any) {
+  } catch (err) {
     console.error("TikTok Proxy Error:", err);
     return res.status(500).json({
       error: "Proxy failed",
-      details: err.message || "Unknown error",
+      details: JSON.stringify(err),
     });
   }
 }
