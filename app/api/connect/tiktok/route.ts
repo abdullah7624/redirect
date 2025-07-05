@@ -1,4 +1,4 @@
-// File: app/api/connect/tiktok/route.ts
+// ✅ Vercel Proxy - TikTok GET Handler
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -13,8 +13,9 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    // Replace with your local/ngrok/production backend endpoint
     const backendResponse = await fetch(
-      "https://1335-2402-ad80-a9-77cd-741e-a76b-c1d-4754.ngrok-free.app/api/connect/tiktok", // 👈 your real backend
+      " https://1335-2402-ad80-a9-77cd-741e-a76b-c1d-4754.ngrok-free.app/api/connect/tiktok", // 👈 real backend
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -36,7 +37,7 @@ export async function GET(req: NextRequest) {
       <html>
         <body>
           <script>
-            window.opener.postMessage({ success: true, provider: 'tiktok' }, '*');
+            window.opener?.postMessage({ success: true, provider: 'tiktok' }, '*');
             window.close();
           </script>
           <p>You're connected! You can close this window.</p>
@@ -50,7 +51,7 @@ export async function GET(req: NextRequest) {
   } catch (err) {
     console.error("TikTok Proxy Error:", err);
     return NextResponse.json(
-      { error: "Proxy failed", details: err || "Unknown error" },
+      { error: "Proxy failed", details: err },
       { status: 500 }
     );
   }
