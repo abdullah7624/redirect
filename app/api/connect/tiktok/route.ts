@@ -2,7 +2,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
-  const code = req.nextUrl.searchParams.get("code");
+  const url = new URL(req.url);
+  const code = url.searchParams.get("code");
 
   if (!code) {
     return NextResponse.json(
@@ -13,7 +14,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const backendResponse = await fetch(
-      "https://14c3-2402-ad80-a0-a8fd-a598-f772-2a75-6e8e.ngrok-free.app/api/connect/tiktok",
+      "https://1335-2402-ad80-a9-77cd-741e-a76b-c1d-4754.ngrok-free.app/api/connect/tiktok", // 👈 your real backend
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -21,48 +22,35 @@ export async function GET(req: NextRequest) {
       }
     );
 
-    const result = await backendResponse.text();
+    const result = await backendResponse.json();
 
     if (!backendResponse.ok) {
       return NextResponse.json(
-        {
-          error: "Backend TikTok handler failed",
-          details: result,
-        },
+        { error: "Backend TikTok handler failed", details: result },
         { status: backendResponse.status }
       );
     }
 
     return new NextResponse(
-      `<!DOCTYPE html>
-<html>
-  <head><title>Connected</title></head>
-  <body>
-    <script>
-      window.opener?.postMessage({ success: true, provider: 'tiktok' }, '*');
-      window.close();
-    </script>
-    <p>You're connected! You can close this window.</p>
-  </body>
-</html>`,
+      `
+      <html>
+        <body>
+          <script>
+            window.opener.postMessage({ success: true, provider: 'tiktok' }, '*');
+            window.close();
+          </script>
+          <p>You're connected! You can close this window.</p>
+        </body>
+      </html>
+    `,
       {
-        status: 200,
         headers: { "Content-Type": "text/html" },
       }
     );
-  } catch (err: unknown) {
+  } catch (err) {
     console.error("TikTok Proxy Error:", err);
-
-    const message =
-      err instanceof Error
-        ? { message: err.message, stack: err.stack }
-        : { raw: JSON.stringify(err) };
-
     return NextResponse.json(
-      {
-        error: "Proxy failed",
-        ...message,
-      },
+      { error: "Proxy failed", details: err || "Unknown error" },
       { status: 500 }
     );
   }
