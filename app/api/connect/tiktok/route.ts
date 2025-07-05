@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const code = url.searchParams.get("code");
-
+  const stateParam = url.searchParams.get("state");
   if (!code) {
     return NextResponse.json(
       { error: "Missing TikTok authorization code" },
@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ code, user_email: stateParam }),
       }
     );
 
