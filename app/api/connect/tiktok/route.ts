@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
   try {
     // Replace with your local/ngrok/production backend endpoint
     const backendResponse = await fetch(
-      " https://e79789cb6f14.ngrok-free.app/api/connect/tiktok", // 👈 real backend
+      "https://e79789cb6f14.ngrok-free.app/api/connect/tiktok", // 👈 real backend
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
